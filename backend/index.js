@@ -12,6 +12,7 @@ import { register } from "./controllers/auth.js";
 import { createPost } from "./controllers/posts.js";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
+import postRoutes from "./routes/posts.js";
 import { verifyToken } from "./middleware/auth.js";
 
 // Configaration
@@ -45,6 +46,7 @@ app.post("/posts", verifyToken, upload.single("picture"), createPost);
 // Routes
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
+app.use("/posts", postRoutes);
 
 // Mongoose Setup:
 const PORT = process.env.PORT || 6001;
