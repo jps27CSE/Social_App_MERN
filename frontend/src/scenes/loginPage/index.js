@@ -6,7 +6,7 @@ const LoginPage = () => {
   const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
 
   return (
-    <box>
+    <Box>
       <Box
         width="100%"
         backgroundColor={theme.palette.background.alt}
@@ -30,7 +30,7 @@ const LoginPage = () => {
         </Typography>
         <Form />
       </Box>
-    </box>
+    </Box>
   );
 };
 

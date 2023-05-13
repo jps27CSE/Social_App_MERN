@@ -42,7 +42,7 @@ const initialValuesRegister = {
 };
 
 const initialValuesLogin = {
-  email: " ",
+  email: "",
   password: "",
 };
 
@@ -55,11 +55,56 @@ const Form = () => {
   const isLogin = pageType === "login";
   const isRegister = pageType === "register";
 
-  const handleFormSubmit = (values, onSubmitProps) => {};
+  const register = async (values, onSubmitProps) => {
+    // this allows us to send form info with image
+    const formData = new FormData();
+    for (let value in values) {
+      formData.append(value, values[value]);
+    }
+    formData.append("picturePath", values.picture.name);
+
+    const savedUserResponse = await fetch(
+      "http://localhost:3001/auth/register",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+    const savedUser = await savedUserResponse.json();
+    onSubmitProps.resetForm();
+
+    if (savedUser) {
+      setPageType("login");
+    }
+  };
+
+  const login = async (values, onSubmitProps) => {
+    const loggedInResponse = await fetch("http://localhost:3001/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    });
+    const loggedIn = await loggedInResponse.json();
+    onSubmitProps.resetForm();
+    if (loggedIn) {
+      dispatch(
+        setLogin({
+          user: loggedIn.user,
+          token: loggedIn.token,
+        })
+      );
+      navigate("/home");
+    }
+  };
+
+  const handleFormSubmit = async (values, onSubmitProps) => {
+    if (isLogin) await login(values, onSubmitProps);
+    if (isRegister) await register(values, onSubmitProps);
+  };
 
   return (
     <Formik
-      onSumit={handleFormSubmit}
+      onSubmit={handleFormSubmit}
       initialValues={isLogin ? initialValuesLogin : initialValuesRegister}
       validationSchema={isLogin ? loginSchema : registerSchema}
     >
@@ -73,7 +118,7 @@ const Form = () => {
         setFieldValue,
         resetForm,
       }) => (
-        <form>
+        <form onSubmit={handleSubmit}>
           <Box
             display="grid"
             gap="30px"
@@ -96,7 +141,6 @@ const Form = () => {
                   helperText={touched.firstName && errors.firstName}
                   sx={{ gridColumn: "span 2" }}
                 />
-
                 <TextField
                   label="Last Name"
                   onBlur={handleBlur}
@@ -107,7 +151,6 @@ const Form = () => {
                   helperText={touched.lastName && errors.lastName}
                   sx={{ gridColumn: "span 2" }}
                 />
-
                 <TextField
                   label="Location"
                   onBlur={handleBlur}
@@ -118,7 +161,6 @@ const Form = () => {
                   helperText={touched.location && errors.location}
                   sx={{ gridColumn: "span 4" }}
                 />
-
                 <TextField
                   label="Occupation"
                   onBlur={handleBlur}
@@ -131,7 +173,6 @@ const Form = () => {
                   helperText={touched.occupation && errors.occupation}
                   sx={{ gridColumn: "span 4" }}
                 />
-
                 <Box
                   gridColumn="span 4"
                   border={`1px solid ${palette.neutral.medium}`}
@@ -170,7 +211,6 @@ const Form = () => {
 
             <TextField
               label="Email"
-              type="email"
               onBlur={handleBlur}
               onChange={handleChange}
               value={values.email}
@@ -179,7 +219,6 @@ const Form = () => {
               helperText={touched.email && errors.email}
               sx={{ gridColumn: "span 4" }}
             />
-
             <TextField
               label="Password"
               type="password"
@@ -193,7 +232,7 @@ const Form = () => {
             />
           </Box>
 
-          {/* Button */}
+          {/* BUTTONS */}
           <Box>
             <Button
               fullWidth
@@ -208,7 +247,6 @@ const Form = () => {
             >
               {isLogin ? "LOGIN" : "REGISTER"}
             </Button>
-
             <Typography
               onClick={() => {
                 setPageType(isLogin ? "register" : "login");
