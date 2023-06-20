@@ -1,8 +1,8 @@
 import {
   ChatBubbleOutlineOutlined,
+  DeleteOutlined,
   FavoriteBorderOutlined,
   FavoriteOutlined,
-  ShareOutlined,
 } from "@mui/icons-material";
 import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
 import FlexBetween from "components/FlexBetween";
@@ -28,10 +28,9 @@ const PostWidget = ({
   const token = useSelector((state) => state.token);
   const loggedInUserId = useSelector((state) => state.user._id);
   const isLiked = likes && Boolean(likes[loggedInUserId]);
+  const [posts, setPosts] = useState([]);
 
   const likeCount = likes ? Object.keys(likes).length : 0;
-
-  console.log(likes);
 
   const { palette } = useTheme();
   const main = palette.neutral.main;
@@ -48,6 +47,28 @@ const PostWidget = ({
     });
     const updatedPost = await response.json();
     dispatch(setPost({ post: updatedPost }));
+  };
+
+  const handleDelete = async () => {
+    try {
+      window.confirm("sometext");
+      const response = await fetch(`http://localhost:3001/posts/${postId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete post");
+      }
+
+      // Reload the feed posts after deleting the post
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -93,9 +114,9 @@ const PostWidget = ({
           </FlexBetween>
         </FlexBetween>
 
-        {/* <IconButton>
-          <ShareOutlined />
-        </IconButton> */}
+        <IconButton onClick={handleDelete}>
+          <DeleteOutlined />
+        </IconButton>
       </FlexBetween>
       {isComments && (
         <Box mt="0.5rem">
