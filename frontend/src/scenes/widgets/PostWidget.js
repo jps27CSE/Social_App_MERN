@@ -114,9 +114,11 @@ const PostWidget = ({
           </FlexBetween>
         </FlexBetween>
 
-        <IconButton onClick={handleDelete}>
-          <DeleteOutlined />
-        </IconButton>
+        {postUserId === loggedInUserId && (
+          <IconButton onClick={handleDelete}>
+            <DeleteOutlined />
+          </IconButton>
+        )}
       </FlexBetween>
       {isComments && (
         <Box mt="0.5rem">
