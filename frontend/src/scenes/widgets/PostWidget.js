@@ -51,7 +51,12 @@ const PostWidget = ({
 
   const handleDelete = async () => {
     try {
-      window.confirm("sometext");
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this post?"
+      );
+      if (!confirmed) {
+        return;
+      }
       const response = await fetch(`http://localhost:3001/posts/${postId}`, {
         method: "DELETE",
         headers: {
