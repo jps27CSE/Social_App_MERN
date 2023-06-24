@@ -3,8 +3,16 @@ import {
   DeleteOutlined,
   FavoriteBorderOutlined,
   FavoriteOutlined,
+  SendOutlined,
 } from "@mui/icons-material";
-import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
+import {
+  Box,
+  Divider,
+  IconButton,
+  Typography,
+  TextField,
+  useTheme,
+} from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
@@ -24,6 +32,7 @@ const PostWidget = ({
   comments,
 }) => {
   const [isComments, setIsComments] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const dispatch = useDispatch();
   const token = useSelector((state) => state.token);
   const loggedInUserId = useSelector((state) => state.user._id);
@@ -75,6 +84,8 @@ const PostWidget = ({
       console.error(error);
     }
   };
+
+  const handleCommentSubmit = async (e) => {};
 
   return (
     <WidgetWrapper m="2rem 0">
@@ -131,11 +142,25 @@ const PostWidget = ({
             <Box key={`${name}-${i}`}>
               <Divider />
               <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
-                {comment}
+                {comment.comment}
               </Typography>
             </Box>
           ))}
           <Divider />
+          <form onSubmit={handleCommentSubmit}>
+            <TextField
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              label="Add a comment"
+              variant="outlined"
+              fullWidth
+              size="small"
+              margin="normal"
+            />
+            <IconButton type="submit">
+              <SendOutlined />
+            </IconButton>
+          </form>
         </Box>
       )}
     </WidgetWrapper>
