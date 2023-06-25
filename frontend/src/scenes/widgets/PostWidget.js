@@ -104,13 +104,13 @@ const PostWidget = ({
         }
       );
 
+      window.location.reload();
       if (!response.ok) {
         throw new Error("Failed to add comment");
       }
 
       const { updatedPost } = await response.json();
       setUpdatedComments(updatedPost.comments);
-      window.location.reload();
       setCommentText("");
     } catch (error) {
       console.error(error);
