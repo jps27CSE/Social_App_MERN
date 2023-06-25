@@ -86,3 +86,38 @@ export const deletePost = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+/* CREATE */
+export const addComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userId, comment } = req.body;
+
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const newComment = {
+      userId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      comment,
+    };
+
+    post.comments.push(newComment);
+
+    const updatedPost = await post.save();
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
