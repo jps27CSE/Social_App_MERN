@@ -22,35 +22,28 @@ const ProfileSettings = () => {
   const { picturePath } = useSelector((state) => state.user);
 
   const handleDelete = () => {
-    // Display confirmation dialog
     const confirmed = window.confirm(
       "Are you sure you want to delete your profile?"
     );
 
     if (confirmed) {
-      // Make API request to delete user
       fetch(`http://localhost:3001/users/${user._id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          // Include any necessary authentication headers or tokens
         },
       })
         .then((response) => {
           if (response.ok) {
-            // User deletion successful
             dispatch(setDeleteUser());
-            // Reload the page
             history.push("/");
           } else {
-            // Handle error response
             throw new Error("Failed to delete user");
           }
         })
         .catch((error) => {
           console.error("Failed to delete user:", error);
-          // Handle error state or display error message
         });
     }
   };
@@ -87,7 +80,6 @@ const ProfileSettings = () => {
             <Typography variant="subtitle1" color="text.secondary">
               Location: {user.location}
             </Typography>
-            {/* Add other profile settings fields here */}
           </Box>
           <Button variant="contained" color="primary" onClick={handleDelete}>
             Delete Profile
