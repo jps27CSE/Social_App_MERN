@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Post from "../models/Post.js";
 
 /* READ */
 export const getUser = async (req, res) => {
@@ -59,5 +60,25 @@ export const addRemoveFriend = async (req, res) => {
     res.status(200).json(formattedFriends);
   } catch (error) {
     res.status(404).json({ message: error.message });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Delete user's posts
+    await Post.deleteMany({ userId: id });
+
+    // Delete user
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "User and posts deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
