@@ -1,5 +1,6 @@
 import { Box, useMediaQuery } from "@mui/material";
 import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import Navbar from "scenes/navbar";
 import UserWidget from "scenes/widgets/UserWidget";
 import MyPostWidget from "scenes/widgets/MyPostWidget";
@@ -10,6 +11,11 @@ import FriendListWidget from "scenes/widgets/FriendListWidget";
 const HomePage = () => {
   const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
   const { _id, picturePath } = useSelector((state) => state.user);
+  const isAuth = useSelector((state) => state.token);
+
+  if (!isAuth) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <Box>

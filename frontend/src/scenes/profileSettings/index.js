@@ -9,10 +9,11 @@ import {
   Typography,
   Paper,
   Avatar,
-  IconButton,
 } from "@mui/material";
 import { Delete } from "@mui/icons-material";
 import Navbar from "scenes/navbar";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const ProfileSettings = () => {
   const dispatch = useDispatch();
@@ -21,36 +22,62 @@ const ProfileSettings = () => {
   const user = useSelector((state) => state.user);
   const { picturePath } = useSelector((state) => state.user);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     const confirmed = window.confirm(
       "Are you sure you want to delete your profile?"
     );
 
     if (confirmed) {
-      fetch(`http://localhost:3001/users/${user._id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          if (response.ok) {
-            dispatch(setDeleteUser());
-            history.push("/");
-          } else {
-            throw new Error("Failed to delete user");
+      try {
+        const response = await fetch(
+          `http://localhost:3001/users/${user._id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           }
-        })
-        .catch((error) => {
-          console.error("Failed to delete user:", error);
-        });
+        );
+
+        if (response.ok) {
+          dispatch(setDeleteUser());
+          history("/"); // Use navigate instead of history.push
+          toast.success("Profile deleted successfully!", {
+            position: "bottom-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          }); // Show success toast
+        } else {
+          const errorData = await response.json();
+          throw new Error(errorData.message);
+        }
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+        toast.error(
+          error.message || "Failed to delete user. Please try again.",
+          {
+            position: "bottom-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+          }
+        ); // Show error toast
+      }
     }
   };
 
   return (
     <>
-      {" "}
       <Navbar />
       <Container maxWidth="sm">
         <Paper elevation={3} sx={{ padding: "2rem" }}>

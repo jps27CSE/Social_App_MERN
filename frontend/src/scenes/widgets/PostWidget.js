@@ -18,6 +18,7 @@ import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { setPost } from "state";
 
 const PostWidget = ({
@@ -74,14 +75,36 @@ const PostWidget = ({
         },
       });
 
-      if (!response.ok) {
+      if (response.ok) {
+        // Show success toast
+        toast.success("Post Deleted !", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+        // Reload the feed posts after deleting the post
+        window.location.reload();
+      } else {
         throw new Error("Failed to delete post");
       }
-
-      // Reload the feed posts after deleting the post
-      window.location.reload();
     } catch (error) {
       console.error(error);
+      // Show error toast
+      toast.error("Failed to delete post. Please try again.", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     }
   };
 
@@ -141,10 +164,33 @@ const PostWidget = ({
         throw new Error("Failed to delete comment");
       }
 
-      const updatedPost = await response.json();
-      setUpdatedComments(updatedPost.comments);
+      // Show toast notification
+      toast.success("Comment Deleted", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+
+      // Reload the page after deleting the comment
+      window.location.reload();
     } catch (error) {
       console.error(error);
+      // Show toast notification for error
+      toast.error("Failed to delete comment", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
     }
   };
 

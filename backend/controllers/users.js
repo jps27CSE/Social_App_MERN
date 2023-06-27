@@ -67,17 +67,59 @@ export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Delete user's posts
-    await Post.deleteMany({ userId: id });
-
-    // Delete user
-    const deletedUser = await User.findByIdAndDelete(id);
+    // Get the user to be deleted
+    const deletedUser = await User.findById(id);
 
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: "User and posts deleted successfully" });
+    // Find all posts where the deleted user has made comments
+    const postsWithUserComments = await Post.find({
+      "comments.userId": id,
+    });
+
+    // Remove the deleted user's comments from the posts
+    const postUpdates = postsWithUserComments.map(async (post) => {
+      post.comments = post.comments.filter((comment) => comment.userId !== id);
+      await post.save();
+    });
+
+    // Wait for all post updates to complete
+    await Promise.all(postUpdates);
+
+    // Delete user's posts
+    await Post.deleteMany({ userId: id });
+
+    // Remove the user from their friends' friend lists
+    const friendPromises = deletedUser.friends.map(async (friendId) => {
+      const friend = await User.findById(friendId);
+      if (friend) {
+        friend.friends = friend.friends.filter(
+          (friend) => friend.toString() !== id
+        );
+        await friend.save();
+      }
+    });
+
+    // Wait for all friend updates to complete
+    await Promise.all(friendPromises);
+
+    // Delete user
+    await User.findByIdAndDelete(id);
+
+    res
+      .status(200)
+      .json({ message: "User and associated data deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

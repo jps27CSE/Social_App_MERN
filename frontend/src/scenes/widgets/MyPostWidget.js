@@ -23,6 +23,7 @@ import UserImage from "components/UserImage";
 import WidgetWrapper from "components/WidgetWrapper";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
 import { setPosts } from "state";
 
 const MyPostWidget = ({ picturePath }) => {
@@ -46,17 +47,46 @@ const MyPostWidget = ({ picturePath }) => {
       formData.append("picturePath", image.name);
     }
 
-    const response = await fetch(`http://localhost:3001/posts`, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
-    });
-    const posts = await response.json();
-    dispatch(setPosts({ posts }));
-    setImage(null);
-    setPost("");
-  };
+    try {
+      const response = await fetch(`http://localhost:3001/posts`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
 
+      if (response.ok) {
+        const posts = await response.json();
+        dispatch(setPosts({ posts }));
+        setImage(null);
+        setPost("");
+        toast.success("Post Uploaded !", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        }); // Show success toast
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message);
+      }
+    } catch (error) {
+      console.error("Failed to create post:", error);
+      toast.error(error.message || "Failed to create post. Please try again.", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      }); // Show error toast
+    }
+  };
   return (
     <WidgetWrapper>
       <FlexBetween gap="1.5rem">
