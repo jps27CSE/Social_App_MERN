@@ -16,7 +16,7 @@ import {
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
 import WidgetWrapper from "components/WidgetWrapper";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setPost } from "state";
@@ -87,6 +87,7 @@ const PostWidget = ({
           progress: undefined,
           theme: "dark",
         });
+        setTimeout(() => {}, 5000);
         // Reload the feed posts after deleting the post
         window.location.reload();
       } else {
@@ -109,7 +110,16 @@ const PostWidget = ({
   };
 
   const handleCommentSubmit = async (e) => {
-    e.preventDefault();
+    toast.success("Comment Submitted", {
+      position: "top-center",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
 
     try {
       const response = await fetch(
@@ -126,7 +136,7 @@ const PostWidget = ({
           }),
         }
       );
-
+      setTimeout(() => {}, 5000);
       window.location.reload();
       if (!response.ok) {
         throw new Error("Failed to add comment");
@@ -164,6 +174,14 @@ const PostWidget = ({
         throw new Error("Failed to delete comment");
       }
 
+      // Update the comments state by removing the deleted comment
+      const updatedCommentList = updatedComments.filter(
+        (comment) => comment._id !== commentId
+      );
+      const updatedPost = await response.json();
+      dispatch(setPost({ post: updatedPost }));
+      setUpdatedComments(updatedCommentList);
+
       // Show toast notification
       toast.success("Comment Deleted", {
         position: "top-center",
@@ -175,9 +193,6 @@ const PostWidget = ({
         progress: undefined,
         theme: "dark",
       });
-
-      // Reload the page after deleting the comment
-      window.location.reload();
     } catch (error) {
       console.error(error);
       // Show toast notification for error

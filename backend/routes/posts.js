@@ -5,7 +5,7 @@ import {
   likePost,
   deletePost,
   addComment,
-  deleteComment, // Import the deleteComment controller
+  deleteComment,
 } from "../controllers/posts.js";
 import { verifyToken } from "../middleware/auth.js";
 
@@ -20,7 +20,7 @@ router.patch("/:id/like", verifyToken, likePost);
 router.patch("/:id/comment", verifyToken, addComment);
 
 /* DELETE */
-router.delete("/:postId/comments/:commentId", verifyToken, deleteComment); // Add the deleteComment route
+router.delete("/:postId/comments/:commentId", verifyToken, deleteComment);
 
 router.delete("/:id", deletePost);
 
