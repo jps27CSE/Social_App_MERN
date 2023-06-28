@@ -117,6 +117,7 @@ export const getAllUsers = async (req, res) => {
   }
 };
 
+//Admin Side
 export const deleteUserFromAdmin = async (req, res) => {
   try {
     const { id } = req.params;

@@ -159,6 +159,7 @@ export const deleteComment = async (req, res) => {
   }
 };
 
+//Admin Side
 export const deletePostAdmin = async (req, res) => {
   try {
     const { id } = req.params;

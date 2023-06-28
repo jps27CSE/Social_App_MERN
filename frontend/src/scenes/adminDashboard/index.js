@@ -114,11 +114,37 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter((user) => {
+    const lowercaseSearchQuery = searchQuery.toLowerCase();
+    const lowercaseFirstName = user.firstName?.toLowerCase() || "";
+    const lowercaseLastName = user.lastName?.toLowerCase() || "";
+    const lowercaseLocation = user.location?.toLowerCase() || "";
+    const lowercaseOccupation = user.occupation?.toLowerCase() || "";
+    const lowercaseUserId = user._id?.toLowerCase() || "";
+
+    return (
+      lowercaseFirstName.includes(lowercaseSearchQuery) ||
+      lowercaseLastName.includes(lowercaseSearchQuery) ||
+      lowercaseLocation.includes(lowercaseSearchQuery) ||
+      lowercaseOccupation.includes(lowercaseSearchQuery) ||
+      lowercaseUserId.includes(lowercaseSearchQuery)
+    );
+  });
+
+  const filteredPosts = posts.filter((post) => {
+    const lowercaseSearchQuery = searchQuery.toLowerCase();
+    const lowercaseTitle = post.title?.toLowerCase() || "";
+    const lowercaseDescription = post.description?.toLowerCase() || "";
+    const lowercaseUserId = post.userId?.toLowerCase() || "";
+    const lowercasePostId = post._id?.toLowerCase() || "";
+
+    return (
+      lowercaseTitle.includes(lowercaseSearchQuery) ||
+      lowercaseDescription.includes(lowercaseSearchQuery) ||
+      lowercaseUserId.includes(lowercaseSearchQuery) ||
+      lowercasePostId.includes(lowercaseSearchQuery)
+    );
+  });
 
   return (
     <Container maxWidth="lg">
@@ -209,7 +235,7 @@ const AdminDashboard = () => {
             All Posts
           </Typography>
           <Grid container spacing={2}>
-            {posts.map((post) => (
+            {filteredPosts.map((post) => (
               <Grid item xs={12} key={post._id}>
                 <Paper
                   sx={{
