@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Container,
@@ -8,6 +8,8 @@ import {
   Button,
   Grid,
   Paper,
+  TextField,
+  Avatar,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -16,6 +18,9 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedTab, setSelectedTab] = useState(0);
 
   const fetchAllUsers = async () => {
     try {
@@ -32,12 +37,28 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchAllPosts = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/posts/admin");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch posts");
+      }
+
+      const data = await response.json();
+      setPosts(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchAllUsers();
+    fetchAllPosts();
   }, []);
 
   const handleTabChange = (event, newValue) => {
-    // Add logic to handle tab change
+    setSelectedTab(newValue);
   };
 
   const handleLogout = () => {
@@ -47,57 +68,127 @@ const AdminDashboard = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:3001/users/${userId}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `http://localhost:3001/users/admin/${userId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete user");
       }
 
-      // Remove the deleted user from the users state
       setUsers((prevUsers) => prevUsers.filter((user) => user._id !== userId));
+
+      const isAuthenticated = localStorage.getItem("isAuth");
+
+      if (isAuthenticated === "true") {
+        localStorage.clear();
+      }
     } catch (error) {
       console.error(error);
     }
   };
 
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleDeletePost = async (postId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/posts/admin/${postId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete post");
+      }
+
+      setPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const filteredUsers = users.filter(
+    (user) =>
+      user.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Container maxWidth="lg">
+      <br />
       <Typography variant="h4" align="center" gutterBottom>
         Admin Dashboard
       </Typography>
 
       <Box sx={{ marginTop: 4 }}>
-        <Tabs value={0} onChange={handleTabChange} centered>
+        <Tabs value={selectedTab} onChange={handleTabChange} centered>
           <Tab label="Users" />
           <Tab label="Posts" />
         </Tabs>
       </Box>
 
-      {/* Users Page */}
-      {0 === 0 && (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: 4,
+        }}
+      >
+        <Typography variant="h6">Admin Dashboard</Typography>
+        <Box>
+          <TextField
+            value={searchQuery}
+            onChange={handleSearchChange}
+            variant="outlined"
+            placeholder="Search..."
+          />
+        </Box>
+        <Button variant="contained" color="primary" onClick={handleLogout}>
+          Logout
+        </Button>
+      </Box>
+
+      {selectedTab === 0 && (
         <Box sx={{ marginTop: 4 }}>
           <Typography variant="h5" gutterBottom>
             All Users
           </Typography>
           <Grid container spacing={2}>
-            {users.map((user) => (
-              <Grid item xs={12} md={4} key={user._id}>
-                <Paper sx={{ p: 2 }}>
-                  <img
+            {filteredUsers.map((user) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={user._id}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Avatar
                     src={`http://localhost:3001/assets/${user.picturePath}`}
                     alt={`${user.firstName} ${user.lastName}`}
-                    style={{
-                      width: "100%",
-                      height: "200px",
-                      objectFit: "cover",
-                    }}
+                    sx={{ width: 120, height: 120, marginBottom: 2 }}
                   />
-                  <Typography>
+                  <Typography variant="h6" align="center" gutterBottom>
                     {user.firstName} {user.lastName}
                   </Typography>
-                  {/* Display other user details here */}
+                  <Typography variant="body2" align="center" gutterBottom>
+                    Location: {user.location}
+                  </Typography>
+                  <Typography variant="body2" align="center" gutterBottom>
+                    Occupation: {user.occupation}
+                  </Typography>
+                  <Typography variant="body2" align="center" gutterBottom>
+                    Friends: {user.friends.length}
+                  </Typography>
                   <Button
                     variant="contained"
                     color="error"
@@ -112,21 +203,58 @@ const AdminDashboard = () => {
         </Box>
       )}
 
-      {/* Posts Page */}
-      {0 === 1 && (
+      {selectedTab === 1 && (
         <Box sx={{ marginTop: 4 }}>
           <Typography variant="h5" gutterBottom>
             All Posts
           </Typography>
-          {/* Display all posts here */}
+          <Grid container spacing={2}>
+            {posts.map((post) => (
+              <Grid item xs={12} key={post._id}>
+                <Paper
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    width="20%"
+                    height="auto"
+                    alt="post"
+                    style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
+                    src={
+                      post.picturePath
+                        ? `http://localhost:3001/assets/${post.picturePath}`
+                        : "https://upload.wikimedia.org/wikipedia/commons/f/fc/No_picture_available.png"
+                    }
+                  />
+                  <Typography variant="h6" align="center" gutterBottom>
+                    {post.title}
+                  </Typography>
+                  <Typography variant="body2" align="center" gutterBottom>
+                    Description: {post.description}
+                  </Typography>
+                  <Typography variant="body2" align="center" gutterBottom>
+                    User ID: {post.userId}
+                  </Typography>
+                  <Typography variant="body2" align="center" gutterBottom>
+                    Post ID: {post._id}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => handleDeletePost(post._id)}
+                  >
+                    Delete
+                  </Button>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
         </Box>
       )}
-
-      <Box sx={{ marginTop: 4, textAlign: "center" }}>
-        <Button variant="contained" color="primary" onClick={handleLogout}>
-          Logout
-        </Button>
-      </Box>
     </Container>
   );
 };

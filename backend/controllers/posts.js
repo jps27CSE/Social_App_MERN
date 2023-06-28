@@ -36,6 +36,15 @@ export const getFeedPosts = async (req, res) => {
   }
 };
 
+export const getFeedPostsAdmin = async (req, res) => {
+  try {
+    const post = await Post.find();
+    res.status(200).json(post);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+};
+
 export const getUserPosts = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -145,6 +154,21 @@ export const deleteComment = async (req, res) => {
     const updatedPost = await post.save();
 
     res.status(200).json(updatedPost);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deletePostAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedPost = await Post.findByIdAndDelete(id);
+
+    if (!deletedPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

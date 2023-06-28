@@ -116,3 +116,48 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const deleteUserFromAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedUser = await User.findById(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const postsWithUserComments = await Post.find({
+      "comments.userId": id,
+    });
+
+    const postUpdates = postsWithUserComments.map(async (post) => {
+      post.comments = post.comments.filter((comment) => comment.userId !== id);
+      await post.save();
+    });
+
+    await Promise.all(postUpdates);
+
+    await Post.deleteMany({ userId: id });
+
+    const friendPromises = deletedUser.friends.map(async (friendId) => {
+      const friend = await User.findById(friendId);
+      if (friend) {
+        friend.friends = friend.friends.filter(
+          (friend) => friend.toString() !== id
+        );
+        await friend.save();
+      }
+    });
+
+    await Promise.all(friendPromises);
+
+    await User.findByIdAndDelete(id);
+
+    res
+      .status(200)
+      .json({ message: "User and associated data deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

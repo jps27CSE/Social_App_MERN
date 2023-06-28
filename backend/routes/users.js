@@ -5,6 +5,7 @@ import {
   addRemoveFriend,
   deleteUser,
   getAllUsers,
+  deleteUserFromAdmin,
 } from "../controllers/users.js";
 import { verifyToken } from "../middleware/auth.js";
 
@@ -19,6 +20,7 @@ router.patch("/:id/:friendId", verifyToken, addRemoveFriend);
 
 // DELETE
 router.delete("/:id", verifyToken, deleteUser);
+router.delete("/admin/:id", deleteUserFromAdmin);
 
 /*GETTING ALL USERS */
 router.get("/", getAllUsers);
