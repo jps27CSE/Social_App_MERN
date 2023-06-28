@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setPost } from "state";
+import { formatDistanceToNow } from "date-fns";
 
 const PostWidget = ({
   postId,
@@ -31,6 +32,7 @@ const PostWidget = ({
   userPicturePath,
   likes,
   comments = [],
+  createdAt,
 }) => {
   const [isComments, setIsComments] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -87,7 +89,7 @@ const PostWidget = ({
           progress: undefined,
           theme: "dark",
         });
-        setTimeout(() => {}, 5000);
+        setTimeout(() => {}, 50000);
         // Reload the feed posts after deleting the post
         window.location.reload();
       } else {
@@ -209,6 +211,13 @@ const PostWidget = ({
     }
   };
 
+  const formatPostTimestamp = () => {
+    const distance = formatDistanceToNow(new Date(createdAt), {
+      addSuffix: true,
+    });
+    return `${distance}`;
+  };
+
   return (
     <WidgetWrapper m="2rem 0">
       <Friend
@@ -217,7 +226,8 @@ const PostWidget = ({
         subtitle={location}
         userPicturePath={userPicturePath}
       />
-      <Typography color={main} sx={{ mt: "1rem" }}>
+
+      <Typography color={main} sx={{ mt: "1rem", fontSize: "1.5rem" }}>
         {description}
       </Typography>
 
@@ -230,6 +240,9 @@ const PostWidget = ({
           src={`http://localhost:3001/assets/${picturePath}`}
         />
       )}
+      <Typography variant="caption" color="textSecondary" sx={{ mt: "0.5rem" }}>
+        {formatPostTimestamp()}
+      </Typography>
       <FlexBetween mt="0.25rem">
         <FlexBetween gap="1rem">
           <FlexBetween gap="0.3rem">
