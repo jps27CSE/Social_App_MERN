@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 const AdminSchema = mongoose.Schema({
   postId: {
     type: String,
-    required: true,
   },
   issue: {
     type: String,

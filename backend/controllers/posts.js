@@ -180,7 +180,6 @@ export const saveIssue = async (req, res) => {
   try {
     const { postId, issue, firstName, lastName, userId } = req.body;
 
-    // Create a new Admin document
     const newIssue = new Admin({
       postId,
       issue,
@@ -189,14 +188,36 @@ export const saveIssue = async (req, res) => {
       userId,
     });
 
-    // Save the Admin document to the database
     await newIssue.save();
 
-    // Return a success response
     res.status(200).json({ message: "Issue saved successfully" });
   } catch (error) {
-    // Handle any errors that occur during the save process
     console.error(error);
     res.status(500).json({ error: "Failed to save the issue" });
+  }
+};
+
+export const getAllIssues = async (req, res) => {
+  try {
+    const issues = await Admin.find();
+    res.status(200).json(issues);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteIssue = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedIssue = await Admin.findByIdAndRemove(id);
+
+    if (!deletedIssue) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
+
+    res.status(200).json({ message: "Issue deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

@@ -68,7 +68,7 @@ const ProfileSettings = () => {
         setSupportForm({
           ...supportForm,
           issue: "",
-          postId: "", // Clear the issue field
+          postId: "",
         });
       } else {
         const errorData = await response.json();
@@ -112,7 +112,7 @@ const ProfileSettings = () => {
 
         if (response.ok) {
           dispatch(setDeleteUser());
-          history("/"); // Use navigate instead of history.push
+          history("/");
           toast.success("Profile deleted successfully!", {
             position: "bottom-center",
             autoClose: 5000,
@@ -122,7 +122,7 @@ const ProfileSettings = () => {
             draggable: true,
             progress: undefined,
             theme: "dark",
-          }); // Show success toast
+          });
         } else {
           const errorData = await response.json();
           throw new Error(errorData.message);
@@ -219,6 +219,37 @@ const ProfileSettings = () => {
                 Submit
               </Button>
             </form>
+          </Box>
+          <Box mt={4}>
+            <Typography variant="subtitle2" color="text.secondary">
+              Caution: Important Message
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Before sharing your issue, please follow these steps:
+            </Typography>
+            <ul>
+              <li>
+                Copy the post ID that you are experiencing a problem with.
+              </li>
+              <li>Paste the post ID into the "Post ID" input field.</li>
+              <li>Describe your issue or problem in the provided text area.</li>
+            </ul>
+            <Typography variant="body2" color="text.secondary">
+              Please note that this process helps us identify and troubleshoot
+              the specific post related to the issue you're experiencing. It
+              allows us to provide more accurate and efficient support. If you
+              encounter any problems or notice any bugs on the site, we
+              appreciate your feedback and encourage you to report them.
+            </Typography>
+            <Typography variant="subtitle2" color="text.secondary">
+              Important: When reporting other bugs that are not related to a
+              specific post, you do not need to provide the post ID.
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Thank you for your cooperation in helping us improve the site. We
+              value your feedback and will work diligently to address any issues
+              you encounter.
+            </Typography>
           </Box>
         </Paper>
       </Container>

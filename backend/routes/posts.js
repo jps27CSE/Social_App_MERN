@@ -9,6 +9,8 @@ import {
   getFeedPostsAdmin,
   deletePostAdmin,
   saveIssue,
+  getAllIssues,
+  deleteIssue,
 } from "../controllers/posts.js";
 import { verifyToken } from "../middleware/auth.js";
 
@@ -31,5 +33,6 @@ router.delete("/admin/:id", deletePostAdmin);
 
 /* ADMIN Issue*/
 router.post("/admin/issue", verifyToken, saveIssue);
-
+router.get("/admin/issue/get", getAllIssues);
+router.delete("/admin/issues/:id", deleteIssue);
 export default router;

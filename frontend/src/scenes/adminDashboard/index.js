@@ -13,12 +13,15 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import { cyan } from "@mui/material/colors";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [issues, setIssues] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -52,9 +55,27 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchAllIssues = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3001/posts/admin/issue/get"
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch issues");
+      }
+
+      const data = await response.json();
+      setIssues(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchAllUsers();
     fetchAllPosts();
+    fetchAllIssues();
   }, []);
 
   const handleTabChange = (event, newValue) => {
@@ -146,6 +167,52 @@ const AdminDashboard = () => {
     );
   });
 
+  const filteredIssues = issues.filter((issue) => {
+    const lowercaseSearchQuery = searchQuery.toLowerCase();
+    const lowercaseIssueId = issue._id?.toLowerCase() || "";
+    const lowercaseTitle = issue.title?.toLowerCase() || "";
+    const lowercaseDescription = issue.description?.toLowerCase() || "";
+    const lowercaseStatus = issue.status?.toLowerCase() || "";
+
+    return (
+      lowercaseIssueId.includes(lowercaseSearchQuery) ||
+      lowercaseTitle.includes(lowercaseSearchQuery) ||
+      lowercaseDescription.includes(lowercaseSearchQuery) ||
+      lowercaseStatus.includes(lowercaseSearchQuery)
+    );
+  });
+
+  const [selectedIssue, setSelectedIssue] = useState(null);
+
+  const handleIssueClick = (issue) => {
+    setSelectedIssue(issue);
+  };
+
+  const handleDeleteButtonClick = async (issueId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/posts/admin/issues/${issueId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        console.log("Issue deleted successfully");
+
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        console.error("Error deleting issue:", errorData.message);
+      }
+    } catch (error) {
+      console.error("Error deleting issue:", error.message);
+    }
+  };
+
   return (
     <Container maxWidth="lg">
       <br />
@@ -157,6 +224,7 @@ const AdminDashboard = () => {
         <Tabs value={selectedTab} onChange={handleTabChange} centered>
           <Tab label="Users" />
           <Tab label="Posts" />
+          <Tab label="Issues" />
         </Tabs>
       </Box>
 
@@ -278,6 +346,78 @@ const AdminDashboard = () => {
                 </Paper>
               </Grid>
             ))}
+          </Grid>
+        </Box>
+      )}
+
+      {selectedTab === 2 && (
+        <Box sx={{ marginTop: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            All Issues
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={4}>
+              {filteredIssues.map((issue) => (
+                <Paper
+                  key={issue._id}
+                  sx={{
+                    p: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                    backgroundColor:
+                      selectedIssue && selectedIssue._id === issue._id
+                        ? "grey"
+                        : "inherit",
+                  }}
+                  onClick={() => handleIssueClick(issue)}
+                >
+                  <Typography variant="body1">
+                    {issue.firstName + " " + issue.lastName}{" "}
+                    {`(${issue.userId})`}
+                  </Typography>
+                </Paper>
+              ))}
+            </Grid>
+            <Grid item xs={8}>
+              {selectedIssue && (
+                <Paper sx={{ p: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    Issue User ID: {selectedIssue.userId}
+                  </Typography>
+                  <Typography variant="h6" gutterBottom>
+                    Issue User Name:{" "}
+                    {selectedIssue.firstName + " " + selectedIssue.lastName}
+                  </Typography>
+                  <Typography variant="h6" gutterBottom>
+                    Issue Post ID: {selectedIssue.postId}
+                  </Typography>
+                  <Typography variant="body1" gutterBottom>
+                    Description:
+                  </Typography>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    multiline
+                    rows={6}
+                    value={selectedIssue.issue}
+                    disabled
+                  />
+                  <Button
+                    variant="contained"
+                    sx={{
+                      color: "black",
+                      backgroundColor: cyan[500],
+                      marginTop: "1rem",
+                    }}
+                    onClick={() => handleDeleteButtonClick(selectedIssue._id)}
+                    endIcon={<CheckCircleOutlineIcon />}
+                  >
+                    Solved
+                  </Button>
+                </Paper>
+              )}
+            </Grid>
           </Grid>
         </Box>
       )}
