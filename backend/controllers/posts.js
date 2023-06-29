@@ -1,5 +1,6 @@
 import Post from "../models/Post.js";
 import User from "../models/User.js";
+import Admin from "../models/Admin.js";
 
 /* CREATE */
 export const createPost = async (req, res) => {
@@ -172,5 +173,30 @@ export const deletePostAdmin = async (req, res) => {
     res.status(200).json({ message: "Post deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+export const saveIssue = async (req, res) => {
+  try {
+    const { postId, issue, firstName, lastName, userId } = req.body;
+
+    // Create a new Admin document
+    const newIssue = new Admin({
+      postId,
+      issue,
+      firstName,
+      lastName,
+      userId,
+    });
+
+    // Save the Admin document to the database
+    await newIssue.save();
+
+    // Return a success response
+    res.status(200).json({ message: "Issue saved successfully" });
+  } catch (error) {
+    // Handle any errors that occur during the save process
+    console.error(error);
+    res.status(500).json({ error: "Failed to save the issue" });
   }
 };

@@ -3,6 +3,7 @@ import {
   DeleteOutlined,
   FavoriteBorderOutlined,
   FavoriteOutlined,
+  FileCopyOutlined,
   SendOutlined,
 } from "@mui/icons-material";
 import {
@@ -211,6 +212,37 @@ const PostWidget = ({
     }
   };
 
+  const handleShare = () => {
+    const postIdToCopy = postId;
+    navigator.clipboard
+      .writeText(postIdToCopy)
+      .then(() => {
+        toast.success("Post ID copied!", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      })
+      .catch((error) => {
+        console.error("Failed to copy post ID:", error);
+        toast.error("Failed to copy post ID. Please try again.", {
+          position: "top-center",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+        });
+      });
+  };
+
   const formatPostTimestamp = () => {
     const distance = formatDistanceToNow(new Date(createdAt), {
       addSuffix: true,
@@ -261,7 +293,11 @@ const PostWidget = ({
             <IconButton onClick={() => setIsComments(!isComments)}>
               <ChatBubbleOutlineOutlined />
             </IconButton>
+
             <Typography>{comments.length}</Typography>
+            <IconButton onClick={handleShare}>
+              <FileCopyOutlined />
+            </IconButton>
           </FlexBetween>
         </FlexBetween>
 
