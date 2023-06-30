@@ -13,6 +13,7 @@ import {
   Typography,
   TextField,
   useTheme,
+  Skeleton,
 } from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
@@ -42,12 +43,17 @@ const PostWidget = ({
   const loggedInUserId = useSelector((state) => state.user._id);
   const isLiked = likes && Boolean(likes[loggedInUserId]);
   const [updatedComments, setUpdatedComments] = useState(comments);
+  const [isLoadingImage, setIsLoadingImage] = useState(true);
 
   const likeCount = likes ? Object.keys(likes).length : 0;
 
   const { palette } = useTheme();
   const main = palette.neutral.main;
   const primary = palette.primary.main;
+
+  const handleImageLoaded = () => {
+    setIsLoadingImage(false);
+  };
 
   const patchLike = async () => {
     const response = await fetch(`http://localhost:3001/posts/${postId}/like`, {
@@ -264,13 +270,27 @@ const PostWidget = ({
       </Typography>
 
       {picturePath && (
-        <img
-          width="100%"
-          height="auto"
-          alt="post"
-          style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
-          src={`http://localhost:3001/assets/${picturePath}`}
-        />
+        <>
+          {isLoadingImage ? (
+            <Skeleton
+              variant="rectangular"
+              height={400}
+              sx={{ mb: 2, borderRadius: "0.75rem" }}
+            />
+          ) : null}
+          <img
+            width="100%"
+            height="auto"
+            alt="post"
+            style={{
+              borderRadius: "0.75rem",
+              marginTop: "0.75rem",
+              display: isLoadingImage ? "none" : "block",
+            }}
+            src={`http://localhost:3001/assets/${picturePath}`}
+            onLoad={handleImageLoaded}
+          />
+        </>
       )}
       <Typography variant="caption" color="textSecondary" sx={{ mt: "0.5rem" }}>
         {formatPostTimestamp()}
