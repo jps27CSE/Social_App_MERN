@@ -14,6 +14,7 @@ import {
   TextField,
   useTheme,
   Skeleton,
+  Avatar,
 } from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
@@ -330,10 +331,14 @@ const PostWidget = ({
       {isComments && (
         <Box mt="0.5rem">
           {updatedComments.map((comment, i) => (
-            <Box key={`${name}-${i}`}>
-              <Divider />
-              <FlexBetween alignItems="center">
+            <Box
+              key={`${name}-${i}`}
+              sx={{ display: "flex", alignItems: "center" }}
+            >
+              <div>
                 <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
+                  <strong>{comment.firstName + " " + comment.lastName}</strong>
+                  {": "}
                   {comment.comment}
                 </Typography>
                 {comment.userId === loggedInUserId && (
@@ -341,7 +346,7 @@ const PostWidget = ({
                     <DeleteOutlined />
                   </IconButton>
                 )}
-              </FlexBetween>
+              </div>
             </Box>
           ))}
           <Divider />
