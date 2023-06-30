@@ -9,14 +9,37 @@ import { useSelector } from "react-redux";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { themeSettings } from "./theme";
-import { ToastContainer, Slide } from "react-toastify";
+import { ToastContainer, Slide, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useEffect, useState } from "react";
 
 function App() {
   const mode = useSelector((state) => state.mode);
   const theme = createTheme(themeSettings(mode));
   const token = useSelector((state) => state.token);
   const isAuth = Boolean(token);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleNetworkChange = () => {
+      setIsOnline(navigator.onLine);
+      if (navigator.onLine) {
+        toast.success("You are connected to the internet.", {
+          autoClose: 3000,
+        });
+      } else {
+        toast.error("You are offline. Please check your internet connection.");
+      }
+    };
+
+    window.addEventListener("online", handleNetworkChange);
+    window.addEventListener("offline", handleNetworkChange);
+
+    return () => {
+      window.removeEventListener("online", handleNetworkChange);
+      window.removeEventListener("offline", handleNetworkChange);
+    };
+  }, []);
 
   return (
     <div className="App">
