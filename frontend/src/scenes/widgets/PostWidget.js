@@ -24,6 +24,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { setPost } from "state";
 import { formatDistanceToNow } from "date-fns";
+import "aos/dist/aos.css";
+import AOS from "aos";
 
 const PostWidget = ({
   postId,
@@ -55,6 +57,14 @@ const PostWidget = ({
   const handleImageLoaded = () => {
     setIsLoadingImage(false);
   };
+
+  useEffect(() => {
+    AOS.init({
+      once: true,
+      offset: 200,
+      delay: 50,
+    });
+  }, []);
 
   const patchLike = async () => {
     const response = await fetch(`http://localhost:3001/posts/${postId}/like`, {
@@ -254,115 +264,125 @@ const PostWidget = ({
   };
 
   return (
-    <WidgetWrapper m="2rem 0">
-      <Friend
-        friendId={postUserId}
-        name={name}
-        subtitle={location}
-        userPicturePath={userPicturePath}
-      />
+    <div data-aos="zoom-in-up">
+      <WidgetWrapper m="2rem 0">
+        <Friend
+          friendId={postUserId}
+          name={name}
+          subtitle={location}
+          userPicturePath={userPicturePath}
+        />
 
-      <Typography color={main} sx={{ mt: "1rem", fontSize: "1.5rem" }}>
-        {description}
-      </Typography>
+        <Typography color={main} sx={{ mt: "1rem", fontSize: "1.5rem" }}>
+          {description}
+        </Typography>
 
-      {picturePath && (
-        <>
-          {isLoadingImage ? (
-            <Skeleton
-              variant="rectangular"
-              height={400}
-              sx={{ mb: 2, borderRadius: "0.75rem" }}
+        {picturePath && (
+          <>
+            {isLoadingImage ? (
+              <Skeleton
+                variant="rectangular"
+                height={400}
+                sx={{ mb: 2, borderRadius: "0.75rem" }}
+              />
+            ) : null}
+            <img
+              width="100%"
+              height="auto"
+              alt="post"
+              style={{
+                borderRadius: "0.75rem",
+                marginTop: "0.75rem",
+                display: isLoadingImage ? "none" : "block",
+              }}
+              src={`http://localhost:3001/assets/${picturePath}`}
+              onLoad={handleImageLoaded}
             />
-          ) : null}
-          <img
-            width="100%"
-            height="auto"
-            alt="post"
-            style={{
-              borderRadius: "0.75rem",
-              marginTop: "0.75rem",
-              display: isLoadingImage ? "none" : "block",
-            }}
-            src={`http://localhost:3001/assets/${picturePath}`}
-            onLoad={handleImageLoaded}
-          />
-        </>
-      )}
-      <Typography variant="caption" color="textSecondary" sx={{ mt: "0.5rem" }}>
-        {formatPostTimestamp()}
-      </Typography>
-      <FlexBetween mt="0.25rem">
-        <FlexBetween gap="1rem">
-          <FlexBetween gap="0.3rem">
-            <IconButton onClick={patchLike}>
-              {isLiked ? (
-                <FavoriteOutlined sx={{ color: primary }} />
-              ) : (
-                <FavoriteBorderOutlined />
-              )}
-            </IconButton>
-
-            <Typography>{likeCount}</Typography>
-          </FlexBetween>
-
-          <FlexBetween gap="0.3rem">
-            <IconButton onClick={() => setIsComments(!isComments)}>
-              <ChatBubbleOutlineOutlined />
-            </IconButton>
-
-            <Typography>{comments.length}</Typography>
-            <IconButton onClick={handleShare}>
-              <FileCopyOutlined />
-            </IconButton>
-          </FlexBetween>
-        </FlexBetween>
-
-        {postUserId === loggedInUserId && (
-          <IconButton onClick={handleDelete}>
-            <DeleteOutlined />
-          </IconButton>
+          </>
         )}
-      </FlexBetween>
-      {isComments && (
-        <Box mt="0.5rem">
-          {updatedComments.map((comment, i) => (
-            <Box
-              key={`${name}-${i}`}
-              sx={{ display: "flex", alignItems: "center" }}
-            >
-              <div>
-                <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
-                  <strong>{comment.firstName + " " + comment.lastName}</strong>
-                  {": "}
-                  {comment.comment}
-                </Typography>
-                {comment.userId === loggedInUserId && (
-                  <IconButton onClick={() => handleDeleteComment(comment._id)}>
-                    <DeleteOutlined />
-                  </IconButton>
+        <Typography
+          variant="caption"
+          color="textSecondary"
+          sx={{ mt: "0.5rem" }}
+        >
+          {formatPostTimestamp()}
+        </Typography>
+        <FlexBetween mt="0.25rem">
+          <FlexBetween gap="1rem">
+            <FlexBetween gap="0.3rem">
+              <IconButton onClick={patchLike}>
+                {isLiked ? (
+                  <FavoriteOutlined sx={{ color: primary }} />
+                ) : (
+                  <FavoriteBorderOutlined />
                 )}
-              </div>
-            </Box>
-          ))}
-          <Divider />
-          <form onSubmit={handleCommentSubmit}>
-            <TextField
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              label="Add a comment"
-              variant="outlined"
-              fullWidth
-              size="small"
-              margin="normal"
-            />
-            <IconButton type="submit">
-              <SendOutlined />
+              </IconButton>
+
+              <Typography>{likeCount}</Typography>
+            </FlexBetween>
+
+            <FlexBetween gap="0.3rem">
+              <IconButton onClick={() => setIsComments(!isComments)}>
+                <ChatBubbleOutlineOutlined />
+              </IconButton>
+
+              <Typography>{comments.length}</Typography>
+              <IconButton onClick={handleShare}>
+                <FileCopyOutlined />
+              </IconButton>
+            </FlexBetween>
+          </FlexBetween>
+
+          {postUserId === loggedInUserId && (
+            <IconButton onClick={handleDelete}>
+              <DeleteOutlined />
             </IconButton>
-          </form>
-        </Box>
-      )}
-    </WidgetWrapper>
+          )}
+        </FlexBetween>
+        {isComments && (
+          <Box mt="0.5rem">
+            {updatedComments.map((comment, i) => (
+              <Box
+                key={`${name}-${i}`}
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <div>
+                  <Typography sx={{ color: main, m: "0.5rem 0", pl: "1rem" }}>
+                    <strong>
+                      {comment.firstName + " " + comment.lastName}
+                    </strong>
+                    {": "}
+                    {comment.comment}
+                  </Typography>
+                  {comment.userId === loggedInUserId && (
+                    <IconButton
+                      onClick={() => handleDeleteComment(comment._id)}
+                    >
+                      <DeleteOutlined />
+                    </IconButton>
+                  )}
+                </div>
+              </Box>
+            ))}
+            <Divider />
+            <form onSubmit={handleCommentSubmit}>
+              <TextField
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                label="Add a comment"
+                variant="outlined"
+                fullWidth
+                size="small"
+                margin="normal"
+              />
+              <IconButton type="submit">
+                <SendOutlined />
+              </IconButton>
+            </form>
+          </Box>
+        )}
+      </WidgetWrapper>
+    </div>
   );
 };
 

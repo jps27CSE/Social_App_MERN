@@ -11,6 +11,8 @@ import WidgetWrapper from "components/WidgetWrapper";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const UserWidget = ({ userId, picturePath }) => {
   const [user, setUser] = useState(null);
@@ -20,6 +22,13 @@ const UserWidget = ({ userId, picturePath }) => {
   const dark = palette.neutral.dark;
   const medium = palette.neutral.medium;
   const main = palette.neutral.main;
+
+  useEffect(() => {
+    AOS.init({
+      once: true,
+      offset: 100,
+    });
+  }, []);
 
   const getUser = async () => {
     const response = await fetch(`http://localhost:3001/users/${userId}`, {
@@ -49,53 +58,55 @@ const UserWidget = ({ userId, picturePath }) => {
   } = user;
 
   return (
-    <WidgetWrapper>
-      {/* FIRST ROW */}
-      <FlexBetween
-        gap="0.5rem"
-        pb="1.1rem"
-        onClick={() => navigate(`/profile/${userId}`)}
-      >
-        <FlexBetween gap="1rem">
-          <UserImage image={picturePath} />
-          <Box>
-            <Typography
-              variant="h4"
-              color={dark}
-              fontWeight="500"
-              sx={{
-                "&:hover": {
-                  color: palette.primary.light,
-                  cursor: "pointer",
-                },
-              }}
-            >
-              {firstName} {lastName}
-            </Typography>
-            <Typography color={medium}>{friends.length} friends</Typography>
-          </Box>
+    <div data-aos="fade-right">
+      <WidgetWrapper>
+        {/* FIRST ROW */}
+        <FlexBetween
+          gap="0.5rem"
+          pb="1.1rem"
+          onClick={() => navigate(`/profile/${userId}`)}
+        >
+          <FlexBetween gap="1rem">
+            <UserImage image={picturePath} />
+            <Box>
+              <Typography
+                variant="h4"
+                color={dark}
+                fontWeight="500"
+                sx={{
+                  "&:hover": {
+                    color: palette.primary.light,
+                    cursor: "pointer",
+                  },
+                }}
+              >
+                {firstName} {lastName}
+              </Typography>
+              <Typography color={medium}>{friends.length} friends</Typography>
+            </Box>
+          </FlexBetween>
+          <ManageAccountsOutlined />
         </FlexBetween>
-        <ManageAccountsOutlined />
-      </FlexBetween>
 
-      <Divider />
+        <Divider />
 
-      {/* SECOND ROW */}
-      <Box p="1rem 0">
-        <Box display="flex" alignItems="center" gap="1rem" mb="0.5rem">
-          <LocationOnOutlined fontSize="large" sx={{ color: main }} />
-          <Typography color={medium}>{location}</Typography>
+        {/* SECOND ROW */}
+        <Box p="1rem 0">
+          <Box display="flex" alignItems="center" gap="1rem" mb="0.5rem">
+            <LocationOnOutlined fontSize="large" sx={{ color: main }} />
+            <Typography color={medium}>{location}</Typography>
+          </Box>
+          <Box display="flex" alignItems="center" gap="1rem">
+            <WorkOutlineOutlined fontSize="large" sx={{ color: main }} />
+            <Typography color={medium}>{occupation}</Typography>
+          </Box>
         </Box>
-        <Box display="flex" alignItems="center" gap="1rem">
-          <WorkOutlineOutlined fontSize="large" sx={{ color: main }} />
-          <Typography color={medium}>{occupation}</Typography>
-        </Box>
-      </Box>
 
-      <Divider />
+        <Divider />
 
-      <Divider />
-    </WidgetWrapper>
+        <Divider />
+      </WidgetWrapper>
+    </div>
   );
 };
 
