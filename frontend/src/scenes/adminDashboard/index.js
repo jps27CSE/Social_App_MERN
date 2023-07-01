@@ -10,11 +10,15 @@ import {
   Paper,
   TextField,
   Avatar,
+  IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { cyan } from "@mui/material/colors";
+import { useTheme } from "@emotion/react";
+import { setMode, setLogout } from "state";
+import { DarkMode, LightMode } from "@mui/icons-material";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -24,6 +28,13 @@ const AdminDashboard = () => {
   const [issues, setIssues] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState(0);
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const neutralLight = theme.palette.neutral.light;
+  const dark = theme.palette.neutral.dark;
+  const background = theme.palette.background.default;
+  const primaryLight = theme.palette.primary.light;
+  const alt = theme.palette.background.alt;
 
   const fetchAllUsers = async () => {
     try {
@@ -89,6 +100,14 @@ const AdminDashboard = () => {
 
   const handleDeleteUser = async (userId) => {
     try {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this user?"
+      );
+
+      if (!confirmDelete) {
+        return; // If the user cancels the deletion, exit the function
+      }
+
       const response = await fetch(
         `http://localhost:3001/users/admin/${userId}`,
         {
@@ -113,11 +132,27 @@ const AdminDashboard = () => {
   };
 
   const handleSearchChange = (event) => {
+    const confirmSearch = window.confirm(
+      "Are you sure you want to perform this search?"
+    );
+
+    if (!confirmSearch) {
+      return; // If the user cancels the search, exit the function
+    }
+
     setSearchQuery(event.target.value);
   };
 
   const handleDeletePost = async (postId) => {
     try {
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this post?"
+      );
+
+      if (!confirmDelete) {
+        return; // If the user cancels the deletion, exit the function
+      }
+
       const response = await fetch(
         `http://localhost:3001/posts/admin/${postId}`,
         {
@@ -213,13 +248,50 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSuspendUser = async (userId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/users/admin/suspend/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === userId ? { ...user, is_suspend: true } : user
+          )
+        );
+
+        window.location.reload();
+
+        localStorage.clear();
+      } else {
+        const errorData = await response.json();
+        console.error("Error suspending user:", errorData.message);
+      }
+    } catch (error) {
+      console.error("Error suspending user:", error.message);
+    }
+  };
+
   return (
     <Container maxWidth="lg">
       <br />
       <Typography variant="h4" align="center" gutterBottom>
-        Admin Dashboard
+        Admin Dashboard{" "}
+        <IconButton onClick={() => dispatch(setMode())}>
+          {theme.palette.mode === "dark" ? (
+            <DarkMode sx={{ fontSize: "25px" }} />
+          ) : (
+            <LightMode sx={{ color: dark, fontSize: "25px" }} />
+          )}
+        </IconButton>
       </Typography>
-
       <Box sx={{ marginTop: 4 }}>
         <Tabs value={selectedTab} onChange={handleTabChange} centered>
           <Tab label="Users" />
@@ -227,7 +299,6 @@ const AdminDashboard = () => {
           <Tab label="Issues" />
         </Tabs>
       </Box>
-
       <Box
         sx={{
           display: "flex",
@@ -236,7 +307,7 @@ const AdminDashboard = () => {
           marginTop: 4,
         }}
       >
-        <Typography variant="h6">Admin Dashboard</Typography>
+        <Typography variant="h6"> Dashboard</Typography>
         <Box>
           <TextField
             value={searchQuery}
@@ -249,7 +320,6 @@ const AdminDashboard = () => {
           Logout
         </Button>
       </Box>
-
       {selectedTab === 0 && (
         <Box sx={{ marginTop: 4 }}>
           <Typography variant="h5" gutterBottom>
@@ -271,25 +341,37 @@ const AdminDashboard = () => {
                     alt={`${user.firstName} ${user.lastName}`}
                     sx={{ width: 120, height: 120, marginBottom: 2 }}
                   />
-                  <Typography variant="h6" align="center" gutterBottom>
-                    {user.firstName} {user.lastName}
-                  </Typography>
-                  <Typography variant="body2" align="center" gutterBottom>
-                    Location: {user.location}
-                  </Typography>
-                  <Typography variant="body2" align="center" gutterBottom>
-                    Occupation: {user.occupation}
-                  </Typography>
-                  <Typography variant="body2" align="center" gutterBottom>
-                    Friends: {user.friends.length}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="error"
-                    onClick={() => handleDeleteUser(user._id)}
-                  >
-                    Delete
-                  </Button>
+                  <div>
+                    <Typography variant="h6" align="center" gutterBottom>
+                      {user.firstName} {user.lastName}
+                    </Typography>
+                    <Typography variant="body2" align="center" gutterBottom>
+                      Location: {user.location}
+                    </Typography>
+                    <Typography variant="body2" align="center" gutterBottom>
+                      Occupation: {user.occupation}
+                    </Typography>
+                    <Typography variant="body2" align="center" gutterBottom>
+                      Friends: {user.friends.length}
+                    </Typography>
+                  </div>
+                  <div style={{ marginTop: "auto" }}>
+                    <Button
+                      variant="contained"
+                      color={user.is_suspend ? "success" : "warning"}
+                      onClick={() => handleSuspendUser(user._id)}
+                      sx={{ marginRight: 1 }}
+                    >
+                      {user.is_suspend ? "Active" : "Suspend"}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => handleDeleteUser(user._id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </Paper>
               </Grid>
             ))}
@@ -349,7 +431,6 @@ const AdminDashboard = () => {
           </Grid>
         </Box>
       )}
-
       {selectedTab === 2 && (
         <Box sx={{ marginTop: 4 }}>
           <Typography variant="h5" gutterBottom>

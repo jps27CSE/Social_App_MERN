@@ -162,3 +162,22 @@ export const deleteUserFromAdmin = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const suspendUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    console.log(userId);
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.is_suspend = !user.is_suspend;
+    await user.save();
+
+    res.status(200).json({ message: "User suspended successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

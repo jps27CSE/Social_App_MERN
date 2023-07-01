@@ -6,6 +6,7 @@ import {
   deleteUser,
   getAllUsers,
   deleteUserFromAdmin,
+  suspendUser,
 } from "../controllers/users.js";
 import { verifyToken } from "../middleware/auth.js";
 
@@ -24,5 +25,6 @@ router.delete("/admin/:id", deleteUserFromAdmin);
 
 /*GETTING ALL USERS */
 router.get("/", getAllUsers);
+router.put("/admin/suspend/:userId", suspendUser);
 
 export default router;

@@ -37,6 +37,10 @@ const UserSchema = new mongoose.Schema(
     occupation: String,
     viewedProfile: Number,
     impressions: Number,
+    is_suspend: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

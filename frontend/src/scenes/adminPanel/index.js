@@ -1,11 +1,29 @@
 import { useState } from "react";
-import { Typography, TextField, Button, Container, Box } from "@mui/material";
+import {
+  Typography,
+  TextField,
+  Button,
+  Container,
+  Box,
+  IconButton,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { DarkMode, LightMode } from "@mui/icons-material";
+import { setMode, setLogout } from "state";
+import { useDispatch } from "react-redux";
+import { useTheme } from "@emotion/react";
 
 function AdminLogin() {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const theme = useTheme();
+  const neutralLight = theme.palette.neutral.light;
+  const dark = theme.palette.neutral.dark;
+  const background = theme.palette.background.default;
+  const primaryLight = theme.palette.primary.light;
+  const alt = theme.palette.background.alt;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -26,7 +44,15 @@ function AdminLogin() {
       <Box sx={{ marginTop: 8 }}>
         <Typography variant="h4" align="center" gutterBottom>
           Admin Login
+          <IconButton onClick={() => dispatch(setMode())}>
+            {theme.palette.mode === "dark" ? (
+              <DarkMode sx={{ fontSize: "25px" }} />
+            ) : (
+              <LightMode sx={{ color: dark, fontSize: "25px" }} />
+            )}
+          </IconButton>
         </Typography>
+
         <form onSubmit={handleSubmit}>
           <TextField
             label="Username"
