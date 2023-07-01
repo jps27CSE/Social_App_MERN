@@ -17,14 +17,12 @@ const PostsWidget = ({ userId, isProfile = false }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
-      // Sort the posts by createdAt date in descending order
       const sortedPosts = data.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       dispatch(setPosts({ posts: sortedPosts }));
     } catch (error) {
       console.error("Error fetching posts:", error);
-      // Handle error
     } finally {
       setIsLoading(false);
     }
@@ -40,21 +38,19 @@ const PostsWidget = ({ userId, isProfile = false }) => {
         }
       );
       const data = await response.json();
-      // Sort the posts by createdAt date in descending order
       const sortedPosts = data.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
       dispatch(setPosts({ posts: sortedPosts }));
     } catch (error) {
       console.error("Error fetching user posts:", error);
-      // Handle error
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
     if (isProfile) {
       getUserPosts();
     } else {
@@ -63,7 +59,6 @@ const PostsWidget = ({ userId, isProfile = false }) => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading) {
-    // Render skeleton while loading
     return (
       <>
         {Array.from({ length: 5 }).map((_, index) => (

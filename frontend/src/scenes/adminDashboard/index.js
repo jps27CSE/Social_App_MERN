@@ -26,6 +26,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [posts, setPosts] = useState([]);
   const [issues, setIssues] = useState([]);
+  const [selectedIssue, setSelectedIssue] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState(0);
   const dispatch = useDispatch();
@@ -105,7 +106,7 @@ const AdminDashboard = () => {
       );
 
       if (!confirmDelete) {
-        return; // If the user cancels the deletion, exit the function
+        return;
       }
 
       const response = await fetch(
@@ -137,7 +138,7 @@ const AdminDashboard = () => {
     );
 
     if (!confirmSearch) {
-      return; // If the user cancels the search, exit the function
+      return;
     }
 
     setSearchQuery(event.target.value);
@@ -150,7 +151,7 @@ const AdminDashboard = () => {
       );
 
       if (!confirmDelete) {
-        return; // If the user cancels the deletion, exit the function
+        return;
       }
 
       const response = await fetch(
@@ -216,8 +217,6 @@ const AdminDashboard = () => {
       lowercaseStatus.includes(lowercaseSearchQuery)
     );
   });
-
-  const [selectedIssue, setSelectedIssue] = useState(null);
 
   const handleIssueClick = (issue) => {
     setSelectedIssue(issue);

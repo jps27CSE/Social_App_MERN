@@ -86,7 +86,6 @@ const PostWidget = ({
       });
 
       if (response.ok) {
-        // Show success toast
         toast.success("Post Deleted !", {
           position: "top-center",
           autoClose: 2000,
@@ -98,14 +97,14 @@ const PostWidget = ({
           theme: "dark",
         });
         setTimeout(() => {}, 50000);
-        // Reload the feed posts after deleting the post
+
         window.location.reload();
       } else {
         throw new Error("Failed to delete post");
       }
     } catch (error) {
       console.error(error);
-      // Show error toast
+
       toast.error("Failed to delete post. Please try again.", {
         position: "top-center",
         autoClose: 2000,
@@ -184,7 +183,6 @@ const PostWidget = ({
         throw new Error("Failed to delete comment");
       }
 
-      // Update the comments state by removing the deleted comment
       const updatedCommentList = updatedComments.filter(
         (comment) => comment._id !== commentId
       );
@@ -192,7 +190,6 @@ const PostWidget = ({
       dispatch(setPost({ post: updatedPost }));
       setUpdatedComments(updatedCommentList);
 
-      // Show toast notification
       toast.success("Comment Deleted", {
         position: "top-center",
         autoClose: 2000,
@@ -205,7 +202,6 @@ const PostWidget = ({
       });
     } catch (error) {
       console.error(error);
-      // Show toast notification for error
       toast.error("Failed to delete comment", {
         position: "top-center",
         autoClose: 2000,
