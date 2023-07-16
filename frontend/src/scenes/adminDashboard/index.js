@@ -29,6 +29,7 @@ const AdminDashboard = () => {
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState(0);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const dispatch = useDispatch();
   const theme = useTheme();
   const neutralLight = theme.palette.neutral.light;
@@ -133,14 +134,6 @@ const AdminDashboard = () => {
   };
 
   const handleSearchChange = (event) => {
-    const confirmSearch = window.confirm(
-      "Are you sure you want to perform this search?"
-    );
-
-    if (!confirmSearch) {
-      return;
-    }
-
     setSearchQuery(event.target.value);
   };
 
@@ -499,6 +492,13 @@ const AdminDashboard = () => {
               )}
             </Grid>
           </Grid>
+        </Box>
+      )}
+      {showConfirmation && (
+        <Box sx={{ marginTop: 4 }}>
+          <Typography variant="body1" gutterBottom>
+            Are you sure you want to perform this search?
+          </Typography>
         </Box>
       )}
     </Container>
